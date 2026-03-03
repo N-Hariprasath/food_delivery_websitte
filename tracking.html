@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyFood – Track Your Order</title>
+    <meta name="description" content="Track your order in real-time and see estimated delivery time." />
+    <link rel="stylesheet" href="index.css" />
+    <style>
+        main {
+            padding: var(--sp-8) 0 var(--sp-16);
+        }
+
+        .tracking-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-xl);
+            padding: var(--sp-8);
+            margin-bottom: var(--sp-6);
+        }
+
+        .order-id-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--sp-6);
+        }
+
+        .order-id-badge {
+            background: rgba(255, 92, 26, 0.1);
+            border: 1px solid rgba(255, 92, 26, 0.3);
+            border-radius: var(--r-full);
+            padding: 5px 14px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--brand-primary);
+        }
+
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse 1.2s infinite;
+        }
+
+        /* ETA */
+        .eta-banner {
+            background: linear-gradient(135deg, rgba(255, 92, 26, 0.15) 0%, rgba(255, 140, 66, 0.08) 100%);
+            border: 1px solid rgba(255, 92, 26, 0.25);
+            border-radius: var(--r-lg);
+            padding: var(--sp-5) var(--sp-6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--sp-8);
+        }
+
+        .eta-label {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .eta-time {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--brand-primary);
+            letter-spacing: -1px;
+            line-height: 1;
+        }
+
+        .eta-unit {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .eta-icon {
+            font-size: 3rem;
+        }
+
+        /* Delivery Person */
+        .delivery-person {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-4);
+            padding: var(--sp-4);
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            margin-bottom: var(--sp-6);
+        }
+
+        .dp-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--r-full);
+            background: var(--brand-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+        }
+
+        .dp-name {
+            font-weight: 700;
+        }
+
+        .dp-role {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .dp-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.82rem;
+            margin-top: 2px;
+        }
+
+        .dp-actions {
+            margin-left: auto;
+            display: flex;
+            gap: var(--sp-3);
+        }
+
+        .dp-action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--r-full);
+            background: var(--bg-card-2);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background var(--t-fast);
+        }
+
+        .dp-action-btn:hover {
+            background: rgba(255, 92, 26, 0.15);
+            border-color: var(--brand-primary);
+        }
+
+        /* Map Placeholder */
+        .map-area {
+            height: 220px;
+            background: linear-gradient(135deg, #111827, #1f2937);
+            border-radius: var(--r-lg);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: var(--sp-6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .map-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .map-roads {
+            position: absolute;
+            inset: 0;
+        }
+
+        .map-road-h {
+            position: absolute;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            left: 5%;
+            right: 5%;
+        }
+
+        .map-road-v {
+            position: absolute;
+            width: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            top: 5%;
+            bottom: 5%;
+        }
+
+        .map-pin-restaurant {
+            position: absolute;
+            left: 20%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.8rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+        }
+
+        .map-pin-home {
+            position: absolute;
+            right: 20%;
+            top: 50%;
+            transform: translate(50%, -50%);
+            font-size: 1.8rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+        }
+
+        .map-rider {
+            position: absolute;
+            font-size: 1.6rem;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+            animation: riderMove 6s ease-in-out infinite;
+            transform: translateY(-50%);
+            top: 50%;
+        }
+
+        @keyframes riderMove {
+            0% {
+                left: 25%;
+            }
+
+            50% {
+                left: 55%;
+            }
+
+            100% {
+                left: 25%;
+            }
+        }
+
+        .map-route {
+            position: absolute;
+            top: 50%;
+            left: 20%;
+            right: 20%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+            transform: translateY(-50%);
+            border-radius: 2px;
+        }
+
+        .map-label {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: var(--r-full);
+            padding: 4px 12px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Stepper */
+        .stepper-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-xl);
+            padding: var(--sp-6) var(--sp-8);
+            margin-bottom: var(--sp-6);
+        }
+
+        .stepper-card h3 {
+            margin-bottom: var(--sp-6);
+        }
+
+        /* Order Details */
+        .order-details-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-xl);
+            padding: var(--sp-6);
+            margin-bottom: var(--sp-6);
+        }
+
+        .order-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--sp-3) 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .order-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .order-detail-row .label {
+            color: var(--text-muted);
+        }
+
+        .rate-section {
+            text-align: center;
+            padding-top: var(--sp-4);
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: var(--sp-3);
+            font-size: 2rem;
+            cursor: pointer;
+            margin: var(--sp-4) 0;
+        }
+
+        .star {
+            transition: transform var(--t-fast);
+        }
+
+        .star:hover {
+            transform: scale(1.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo" onclick="navigate('index.html')" style="cursor:pointer">
+                <div class="logo-icon">🍔</div>
+                <span>MyFood</span>
+            </div>
+            <span style="font-weight:700">Order Tracking</span>
+            <div class="header-actions">
+                <button class="icon-btn" data-nav="cart">🛒<span class="cart-badge" id="cartBadge"
+                        style="display:none">0</span></button>
+                <div class="avatar-btn" data-nav="profile">H</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 700px;">
+
+        <!-- Order ID + Live -->
+        <div class="order-id-row" style="padding-top:var(--sp-4)">
+            <span class="order-id-badge" id="orderIdBadge">ORD#—</span>
+            <span class="live-badge"><span class="live-dot"></span>Live Tracking</span>
+        </div>
+
+        <!-- ETA -->
+        <div class="eta-banner">
+            <div>
+                <div class="eta-label">Estimated delivery in</div>
+                <div style="display:flex;align-items:baseline;gap:4px">
+                    <div class="eta-time" id="etaMin">28</div>
+                    <div class="eta-unit">minutes</div>
+                </div>
+                <div class="eta-label" style="margin-top:4px" id="etaArrival"></div>
+            </div>
+            <div class="eta-icon">🛵</div>
+        </div>
+
+        <!-- Stepper -->
+        <div class="stepper-card">
+            <h3>Order Status</h3>
+            <div class="stepper" id="statusStepper">
+                <div class="stepper-progress" id="stepperProgress" style="width:0%"></div>
+                <div class="step done" id="step0">
+                    <div class="step-icon">✅</div>
+                    <div class="step-label">Order<br>Placed</div>
+                </div>
+                <div class="step" id="step1">
+                    <div class="step-icon">👨‍🍳</div>
+                    <div class="step-label">Preparing<br>Food</div>
+                </div>
+                <div class="step" id="step2">
+                    <div class="step-icon">🛵</div>
+                    <div class="step-label">On the<br>Way</div>
+                </div>
+                <div class="step" id="step3">
+                    <div class="step-icon">🏠</div>
+                    <div class="step-label">Delivered</div>
+                </div>
+            </div>
+            <div style="text-align:center;margin-top:var(--sp-4);font-size:0.9rem;color:var(--text-secondary)"
+                id="statusMsg">
+                Your order has been placed and confirmed!
+            </div>
+        </div>
+
+        <!-- Map -->
+        <div class="map-area">
+            <div class="map-grid"></div>
+            <div class="map-roads">
+                <div class="map-road-h" style="top:50%"></div>
+                <div class="map-road-h" style="top:25%"></div>
+                <div class="map-road-h" style="top:75%"></div>
+                <div class="map-road-v" style="left:30%"></div>
+                <div class="map-road-v" style="left:60%"></div>
+            </div>
+            <div class="map-route"></div>
+            <div class="map-pin-restaurant">🍽️</div>
+            <div class="map-rider" id="mapRider">🛵</div>
+            <div class="map-pin-home">🏠</div>
+            <div class="map-label">Live route — Spice Garden › Your Home</div>
+        </div>
+
+        <!-- Delivery Person -->
+        <div class="delivery-person">
+            <div class="dp-avatar">🧑</div>
+            <div>
+                <div class="dp-name">Rajesh Kumar</div>
+                <div class="dp-role">Delivery Partner</div>
+                <div class="dp-rating">⭐ 4.9 · 2,341 deliveries</div>
+            </div>
+            <div class="dp-actions">
+                <button class="dp-action-btn" title="Call" onclick="Toast.show('Calling Rajesh... 📞')">📞</button>
+                <button class="dp-action-btn" title="Message" onclick="Toast.show('Opening chat... 💬')">💬</button>
+            </div>
+        </div>
+
+        <!-- Order Details -->
+        <div class="order-details-card">
+            <h4 style="margin-bottom:var(--sp-4)">Order Details</h4>
+            <div id="orderItemsList"></div>
+            <div class="order-detail-row"><span class="label">Order ID</span><span id="detailOrderId">—</span></div>
+            <div class="order-detail-row"><span class="label">Restaurant</span><span id="detailRestaurant">—</span>
+            </div>
+            <div class="order-detail-row"><span class="label">Payment</span><span id="detailPayment">—</span></div>
+            <div class="order-detail-row"><span class="label">Total Paid</span><span id="detailTotal"
+                    style="font-weight:700">—</span></div>
+            <div class="order-detail-row"><span class="label">Deliver To</span><span id="detailAddress"
+                    style="max-width:60%;text-align:right">—</span></div>
+        </div>
+
+        <!-- Rate Order -->
+        <div class="tracking-card" id="rateSection" style="display:none">
+            <div class="rate-section">
+                <h3>🎉 Order Delivered!</h3>
+                <p>How was your experience?</p>
+                <div class="stars" id="stars">
+                    <span class="star" onclick="rateStar(1)">⭐</span>
+                    <span class="star" onclick="rateStar(2)">⭐</span>
+                    <span class="star" onclick="rateStar(3)">⭐</span>
+                    <span class="star" onclick="rateStar(4)">⭐</span>
+                    <span class="star" onclick="rateStar(5)">⭐</span>
+                </div>
+                <button class="btn btn-primary" onclick="navigate('index.html')">Order Again 🍔</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="index.html"><span>🏠</span>Home</a>
+        <a href="cart.html"><span>🛒</span>Cart</a>
+        <a href="tracking.html" class="active"><span>📦</span>Orders</a>
+        <a href="profile.html"><span>👤</span>Profile</a>
+    </nav>
+
+    <script src="app.js"></script>
+    <script>
+        // Step management
+        const STEPS = [
+            { id: 'step0', msg: 'Your order has been placed and confirmed! 🎉', progress: '0%' },
+            { id: 'step1', msg: '👨‍🍳 The restaurant is preparing your food...', progress: '33%' },
+            { id: 'step2', msg: '🛵 Rajesh is on the way with your order!', progress: '66%' },
+            { id: 'step3', msg: '🏠 Delivered! Enjoy your meal!', progress: '100%' }
+        ];
+
+        let currentStep = 0;
+        let etaSeconds = 28 * 60;
+        let stepTimer, etaTimer;
+
+        function updateStep(step) {
+            currentStep = step;
+            STEPS.forEach((s, i) => {
+                const el = document.getElementById(s.id);
+                el.className = 'step';
+                if (i < step) el.classList.add('done');
+                else if (i === step) el.classList.add('active');
+            });
+            document.getElementById('stepperProgress').style.width = STEPS[step].progress;
+            document.getElementById('statusMsg').textContent = STEPS[step].msg;
+            if (step === 3) {
+                document.getElementById('rateSection').style.display = 'block';
+            }
+        }
+
+        function startEtaCountdown() {
+            function tick() {
+                etaSeconds--;
+                if (etaSeconds <= 0) { clearInterval(etaTimer); return; }
+                const min = Math.floor(etaSeconds / 60);
+                const sec = etaSeconds % 60;
+                document.getElementById('etaMin').textContent = min;
+
+                // Update arrival time
+                const arr = new Date(Date.now() + etaSeconds * 1000);
+                document.getElementById('etaArrival').textContent =
+                    `Arriving by ${arr.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}`;
+            }
+            tick();
+            etaTimer = setInterval(tick, 1000);
+        }
+
+        function startStepProgression() {
+            // Step 1 after 8s, Step 2 after 20s, Step 3 after 40s (demo)
+            const timings = [8000, 20000, 40000];
+            timings.forEach((t, i) => setTimeout(() => updateStep(i + 1), t));
+        }
+
+        function loadOrder() {
+            const orderId = localStorage.getItem('myfood_current_order');
+            const orders = Orders.get();
+            let order = orderId ? orders.find(o => o.id === orderId) : orders[0];
+
+            if (!order && orders.length === 0) {
+                // Demo order if none exists
+                order = {
+                    id: 'ORD' + Date.now(),
+                    restaurantName: 'Spice Garden',
+                    items: [{ name: 'Chicken Biryani', qty: 1, price: 320 }, { name: 'Paneer Tikka', qty: 2, price: 220 }],
+                    deliveryAddress: { name: 'Hari Kumar', address: '42, MG Road', city: 'Bengaluru' },
+                    paymentMethod: 'card',
+                    total: 790
+                };
+            }
+
+            if (!order) return;
+
+            document.getElementById('orderIdBadge').textContent = order.id?.substring(0, 12) || 'ORD#—';
+            document.getElementById('detailOrderId').textContent = order.id?.substring(0, 12) || '—';
+            document.getElementById('detailRestaurant').textContent = order.restaurantName || '—';
+            document.getElementById('detailPayment').textContent =
+                ({ card: '💳 Card', upi: '📲 UPI', cod: '💵 Cash', wallet: '👛 Wallet' })[order.paymentMethod] || '—';
+            document.getElementById('detailTotal').textContent = order.total ? formatPrice(order.total) : '—';
+            if (order.deliveryAddress) {
+                const a = order.deliveryAddress;
+                document.getElementById('detailAddress').textContent = `${a.address || ''}, ${a.city || ''}`;
+            }
+
+            if (order.items) {
+                document.getElementById('orderItemsList').innerHTML = order.items.map(i =>
+                    `<div class="order-detail-row"><span class="label">${i.qty}× ${i.name}</span><span>${formatPrice(i.price * i.qty)}</span></div>`
+                ).join('');
+            }
+        }
+
+        function rateStar(n) {
+            const stars = document.getElementById('stars').children;
+            Array.from(stars).forEach((s, i) => { s.style.filter = i < n ? 'none' : 'grayscale(1) opacity(0.4)'; });
+            Toast.show(`Thanks for rating us ${n} star${n > 1 ? 's' : ''}! ⭐`, 'success');
+        }
+
+        // Init
+        loadOrder();
+        updateStep(0);
+        startEtaCountdown();
+        startStepProgression();
+    </script>
+</body>
+
+</html>

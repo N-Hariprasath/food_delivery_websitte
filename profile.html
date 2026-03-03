@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyFood – My Profile</title>
+    <meta name="description" content="View your profile, order history, and saved addresses." />
+    <link rel="stylesheet" href="index.css" />
+    <style>
+        main {
+            padding: var(--sp-8) 0 var(--sp-16);
+        }
+
+        /* Profile Hero */
+        .profile-hero {
+            background: linear-gradient(135deg, rgba(255, 92, 26, 0.18), rgba(255, 140, 66, 0.1));
+            border: 1px solid rgba(255, 92, 26, 0.2);
+            border-radius: var(--r-xl);
+            padding: var(--sp-8);
+            display: flex;
+            align-items: center;
+            gap: var(--sp-6);
+            margin-bottom: var(--sp-6);
+        }
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: var(--r-full);
+            background: var(--brand-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: #fff;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-brand);
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .profile-email {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            margin-top: 4px;
+        }
+
+        .profile-phone {
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: var(--sp-6);
+            margin-top: var(--sp-4);
+            flex-wrap: wrap;
+        }
+
+        .profile-stat {
+            text-align: center;
+        }
+
+        .profile-stat .val {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--brand-primary);
+        }
+
+        .profile-stat .lbl {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .edit-btn {
+            margin-left: auto;
+            align-self: flex-start;
+        }
+
+        /* Cards */
+        .profile-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            overflow: hidden;
+            margin-bottom: var(--sp-5);
+        }
+
+        .profile-card-header {
+            padding: var(--sp-4) var(--sp-6);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-glass);
+        }
+
+        .profile-card-header h3 {
+            font-size: 1rem;
+        }
+
+        /* Order History Items */
+        .order-item {
+            padding: var(--sp-5) var(--sp-6);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--sp-4);
+            transition: background var(--t-fast);
+        }
+
+        .order-item:hover {
+            background: var(--bg-glass);
+        }
+
+        .order-item:last-child {
+            border-bottom: none;
+        }
+
+        .order-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--r-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            flex-shrink: 0;
+        }
+
+        .order-icon.placed {
+            background: rgba(75, 156, 245, 0.15);
+        }
+
+        .order-icon.delivered {
+            background: rgba(44, 182, 125, 0.15);
+        }
+
+        .order-icon.cancelled {
+            background: rgba(255, 92, 92, 0.15);
+        }
+
+        .order-info {
+            flex: 1;
+        }
+
+        .order-restaurant {
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .order-items-list {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 3px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 280px;
+        }
+
+        .order-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .order-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: var(--sp-2);
+        }
+
+        .order-total {
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .reorder-btn {
+            font-size: 0.75rem;
+        }
+
+        /* Address Items */
+        .address-item {
+            padding: var(--sp-4) var(--sp-6);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: flex-start;
+            gap: var(--sp-4);
+        }
+
+        .address-item:last-child {
+            border-bottom: none;
+        }
+
+        .address-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .address-label {
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+
+        .address-text {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .address-actions {
+            margin-left: auto;
+            display: flex;
+            gap: var(--sp-2);
+        }
+
+        /* Quick Links */
+        .quick-links {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--sp-3);
+            margin-bottom: var(--sp-5);
+        }
+
+        .quick-link {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: var(--sp-4) var(--sp-5);
+            display: flex;
+            align-items: center;
+            gap: var(--sp-3);
+            cursor: pointer;
+            transition: all var(--t-fast);
+        }
+
+        .quick-link:hover {
+            border-color: var(--brand-primary);
+            background: rgba(255, 92, 26, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .quick-link .ql-icon {
+            font-size: 1.3rem;
+        }
+
+        .quick-link .ql-label {
+            font-weight: 600;
+            font-size: 0.88rem;
+        }
+
+        .quick-link .ql-arrow {
+            margin-left: auto;
+            color: var(--text-muted);
+        }
+
+        /* Logout */
+        .logout-btn {
+            width: 100%;
+            background: rgba(255, 92, 92, 0.08);
+            border: 1.5px solid rgba(255, 92, 92, 0.2);
+            border-radius: var(--r-lg);
+            padding: var(--sp-4) var(--sp-6);
+            color: var(--error);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--sp-3);
+            transition: background var(--t-fast);
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 92, 92, 0.15);
+        }
+
+        @media (max-width: 600px) {
+            .profile-hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .edit-btn {
+                margin-left: 0;
+            }
+
+            .quick-links {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo" onclick="navigate('index.html')" style="cursor:pointer">
+                <div class="logo-icon">🍔</div>
+                <span>MyFood</span>
+            </div>
+            <span style="font-weight:700">My Profile</span>
+            <div class="header-actions">
+                <button class="icon-btn" data-nav="cart">🛒<span class="cart-badge" id="cartBadge"
+                        style="display:none">0</span></button>
+                <div class="avatar-btn" data-nav="profile">H</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="max-width: 750px;">
+
+        <!-- Profile Hero -->
+        <div class="profile-hero anim-up">
+            <div class="profile-avatar" id="profileAvatar">H</div>
+            <div style="flex:1">
+                <div class="profile-name" id="profileName">Hari Kumar</div>
+                <div class="profile-email" id="profileEmail">hari@example.com</div>
+                <div class="profile-phone" id="profilePhone">+91 98765 43210</div>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="val" id="statOrders">0</div>
+                        <div class="lbl">Orders</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="val" id="statSaved">₹0</div>
+                        <div class="lbl">Saved</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="val">4.9⭐</div>
+                        <div class="lbl">Your Rating</div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-outline btn-sm edit-btn" onclick="editProfile()">✏️ Edit</button>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="quick-links">
+            <div class="quick-link" onclick="navigate('tracking.html')">
+                <span class="ql-icon">📦</span><span class="ql-label">My Orders</span><span class="ql-arrow">›</span>
+            </div>
+            <div class="quick-link" onclick="Toast.show('Offers page coming soon! 🎁')">
+                <span class="ql-icon">🏷️</span><span class="ql-label">Offers & Coupons</span><span
+                    class="ql-arrow">›</span>
+            </div>
+            <div class="quick-link" onclick="Toast.show('Wallet coming soon! 👛')">
+                <span class="ql-icon">👛</span><span class="ql-label">MyFood Wallet</span><span
+                    class="ql-arrow">›</span>
+            </div>
+            <div class="quick-link" onclick="Toast.show('Support chat loading... 💬')">
+                <span class="ql-icon">💬</span><span class="ql-label">Help & Support</span><span
+                    class="ql-arrow">›</span>
+            </div>
+            <div class="quick-link" onclick="Toast.show('Settings coming soon! ⚙️')">
+                <span class="ql-icon">⚙️</span><span class="ql-label">Settings</span><span class="ql-arrow">›</span>
+            </div>
+            <div class="quick-link" onclick="Toast.show('Notification preferences! 🔔')">
+                <span class="ql-icon">🔔</span><span class="ql-label">Notifications</span><span
+                    class="ql-arrow">›</span>
+            </div>
+        </div>
+
+        <!-- Saved Addresses -->
+        <div class="profile-card">
+            <div class="profile-card-header">
+                <h3>📍 Saved Addresses</h3>
+                <button class="btn btn-sm btn-outline" onclick="Toast.show('Address added! 📍')">+ Add New</button>
+            </div>
+            <div class="address-item">
+                <span class="address-icon">🏠</span>
+                <div>
+                    <div class="address-label">Home</div>
+                    <div class="address-text" id="savedAddr1">42, MG Road, Bengaluru – 560001</div>
+                </div>
+                <div class="address-actions">
+                    <button class="btn btn-sm btn-ghost" onclick="Toast.show('Edit address...')">Edit</button>
+                </div>
+            </div>
+            <div class="address-item">
+                <span class="address-icon">💼</span>
+                <div>
+                    <div class="address-label">Office</div>
+                    <div class="address-text">Tech Park, Whitefield, Bengaluru – 560066</div>
+                </div>
+                <div class="address-actions">
+                    <button class="btn btn-sm btn-ghost" onclick="Toast.show('Edit address...')">Edit</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order History -->
+        <div class="profile-card">
+            <div class="profile-card-header">
+                <h3>🧾 Order History</h3>
+                <span id="orderCountBadge" class="badge badge-brand">0 orders</span>
+            </div>
+            <div id="orderHistory">
+                <div class="empty-state" style="padding:var(--sp-10)">
+                    <div class="empty-icon">📋</div>
+                    <h3>No orders yet</h3>
+                    <p>Your order history will appear here</p>
+                    <button class="btn btn-primary" onclick="navigate('index.html')">Order Now</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Logout -->
+        <button class="logout-btn" onclick="logout()">
+            <span>🚪</span> Log Out
+        </button>
+
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="index.html"><span>🏠</span>Home</a>
+        <a href="cart.html"><span>🛒</span>Cart</a>
+        <a href="tracking.html"><span>📦</span>Orders</a>
+        <a href="profile.html" class="active"><span>👤</span>Profile</a>
+    </nav>
+
+    <script src="app.js"></script>
+    <script>
+        const PAYMENT_LABELS = { card: '💳 Card', upi: '📲 UPI', cod: '💵 Cash', wallet: '👛 Wallet' };
+
+        function loadProfile() {
+            const user = User.get();
+            if (user) {
+                document.getElementById('profileAvatar').textContent = user.avatar || user.name[0];
+                document.getElementById('profileName').textContent = user.name;
+                document.getElementById('profileEmail').textContent = user.email;
+                document.getElementById('profilePhone').textContent = user.phone;
+                if (user.address) document.getElementById('savedAddr1').textContent = user.address;
+            }
+        }
+
+        function loadOrders() {
+            const orders = Orders.get();
+            const badge = document.getElementById('orderCountBadge');
+            badge.textContent = `${orders.length} order${orders.length !== 1 ? 's' : ''}`;
+            document.getElementById('statOrders').textContent = orders.length;
+
+            // Total saved (just fun number)
+            const saved = orders.reduce((s, o) => s + (o.total > 400 ? 50 : 0), 0);
+            document.getElementById('statSaved').textContent = `₹${saved}`;
+
+            if (!orders.length) return;
+
+            const container = document.getElementById('orderHistory');
+            container.innerHTML = orders.map(order => {
+                const itemSummary = (order.items || []).map(i => `${i.qty}×${i.name}`).join(', ');
+                const statusClass = order.status === 'delivered' ? 'delivered' : order.status === 'cancelled' ? 'cancelled' : 'placed';
+                const statusIcon = { delivered: '✅', cancelled: '❌', placed: '🟠' }[statusClass] || '🟠';
+                const dateStr = order.date ? new Date(order.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recently';
+
+                return `
+        <div class="order-item">
+          <div class="order-icon ${statusClass}">${statusIcon}</div>
+          <div class="order-info">
+            <div class="order-restaurant">${order.restaurantName || 'Restaurant'}</div>
+            <div class="order-items-list">${itemSummary || 'Items'}</div>
+            <div class="order-date">${dateStr} · ${PAYMENT_LABELS[order.paymentMethod] || 'Paid'}</div>
+          </div>
+          <div class="order-right">
+            <div class="order-total">${order.total ? formatPrice(order.total) : '—'}</div>
+            <button class="btn btn-sm btn-outline reorder-btn" onclick="reorder('${order.id}')">Reorder</button>
+            <button class="btn btn-sm btn-ghost reorder-btn" onclick="viewOrder('${order.id}')">Track</button>
+          </div>
+        </div>
+      `;
+            }).join('');
+        }
+
+        function editProfile() {
+            const user = User.get();
+            const name = prompt('Enter your name:', user?.name || '');
+            if (name && name.trim()) {
+                const updated = { ...user, name: name.trim(), avatar: name.trim()[0].toUpperCase() };
+                User.save(updated);
+                loadProfile();
+                Toast.show('Profile updated! ✅', 'success');
+            }
+        }
+
+        function reorder(orderId) {
+            const orders = Orders.get();
+            const order = orders.find(o => o.id === orderId);
+            if (!order || !order.items) return;
+            // Add all items to cart
+            order.items.forEach(item => Cart.add(item, order.items[0]?.restaurantId || 1, order.restaurantName));
+            navigate('cart.html');
+        }
+
+        function viewOrder(orderId) {
+            localStorage.setItem('myfood_current_order', orderId);
+            navigate('tracking.html');
+        }
+
+        function logout() {
+            if (confirm('Log out of MyFood?')) {
+                Cart.clear();
+                Toast.show('Logged out. See you! 👋');
+                setTimeout(() => navigate('index.html'), 1000);
+            }
+        }
+
+        loadProfile();
+        loadOrders();
+    </script>
+</body>
+
+</html>

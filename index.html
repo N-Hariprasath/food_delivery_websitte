@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyFood – Order Food Online | Fast Delivery</title>
+    <meta name="description"
+        content="MyFood – discover top restaurants near you, browse menus and get food delivered hot and fast to your door." />
+    <link rel="stylesheet" href="index.css" />
+    <style>
+        /* ── Hero ─────────────────────────────────────── */
+        .hero {
+            position: relative;
+            overflow: hidden;
+            padding: 72px 0 80px;
+            background: radial-gradient(ellipse at 60% 50%, rgba(255, 92, 26, 0.18) 0%, transparent 65%),
+                radial-gradient(ellipse at 10% 80%, rgba(255, 140, 66, 0.12) 0%, transparent 50%),
+                var(--bg-base);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 92, 26, 0.12);
+            border: 1px solid rgba(255, 92, 26, 0.3);
+            border-radius: var(--r-full);
+            padding: 5px 14px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--brand-secondary);
+            margin-bottom: var(--sp-5);
+        }
+
+        .hero h1 {
+            margin-bottom: var(--sp-4);
+        }
+
+        .hero h1 span {
+            background: var(--brand-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            margin-bottom: var(--sp-8);
+            max-width: 480px;
+        }
+
+        .hero-search {
+            max-width: 530px;
+            margin-bottom: var(--sp-6);
+        }
+
+        .hero-search .search-bar {
+            border-radius: var(--r-lg);
+            padding: 1rem 1.4rem;
+        }
+
+        .hero-search .search-bar input {
+            font-size: 1rem;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: var(--sp-8);
+        }
+
+        .hero-stat .val {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .hero-stat .lbl {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .hero-img {
+            position: absolute;
+            right: -40px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50%;
+            max-width: 580px;
+            border-radius: var(--r-xl);
+            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7);
+            z-index: 1;
+            object-fit: cover;
+            height: 420px;
+        }
+
+        .hero-badge-float {
+            position: absolute;
+            right: 45%;
+            top: 20%;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: var(--sp-3) var(--sp-4);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--sp-3);
+            z-index: 3;
+            animation: floatBob 3s ease-in-out infinite;
+        }
+
+        .hero-badge-float .hb-icon {
+            font-size: 1.6rem;
+        }
+
+        .hero-badge-float .hb-val {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .hero-badge-float .hb-lbl {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        @keyframes floatBob {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* ── Categories ───────────────────────────────── */
+        .categories-scroll {
+            display: flex;
+            gap: var(--sp-3);
+            overflow-x: auto;
+            padding-bottom: var(--sp-2);
+            scrollbar-width: none;
+        }
+
+        .categories-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* ── Promo Banners ────────────────────────────── */
+        .promo-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--sp-4);
+            margin-bottom: var(--sp-12);
+        }
+
+        .promo-card {
+            border-radius: var(--r-lg);
+            padding: var(--sp-5) var(--sp-6);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--sp-4);
+            cursor: pointer;
+            transition: transform var(--t-fast);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .promo-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .promo-card-1 {
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border: 1px solid rgba(75, 156, 245, 0.3);
+        }
+
+        .promo-card-2 {
+            background: linear-gradient(135deg, #1a0a00, #2d1200);
+            border: 1px solid rgba(255, 92, 26, 0.3);
+        }
+
+        .promo-card-3 {
+            background: linear-gradient(135deg, #0a1a0a, #0d2a0d);
+            border: 1px solid rgba(44, 182, 125, 0.3);
+        }
+
+        .promo-card h3 {
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .promo-card p {
+            font-size: 0.8rem;
+            margin: 0;
+        }
+
+        .promo-card .promo-emoji {
+            font-size: 2.4rem;
+        }
+
+        /* ── Restaurant Grid ──────────────────────────── */
+        .restaurants-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--sp-5);
+        }
+
+        @media (max-width: 1024px) {
+            .restaurants-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .promo-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-img {
+                display: none;
+            }
+
+            .hero-badge-float {
+                display: none;
+            }
+
+            .restaurants-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+
+            .promo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 48px 0 60px;
+            }
+
+            .hero-stats {
+                gap: var(--sp-6);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-stats {
+                flex-wrap: wrap;
+                gap: var(--sp-4);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── Header ──────────────────────────────────── -->
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <div class="logo-icon">🍔</div>
+                <span>MyFood</span>
+            </div>
+
+            <div class="header-location">
+                <span>📍</span>
+                <span>Delivery to <strong class="city">Bengaluru</strong></span>
+                <span style="color:var(--text-muted); font-size:0.7rem;">▼</span>
+            </div>
+
+            <div class="header-actions">
+                <button class="icon-btn" data-nav="cart" title="Cart" id="cartBtn">
+                    🛒
+                    <span class="cart-badge" id="cartBadge" style="display:none">0</span>
+                </button>
+                <div class="avatar-btn" data-nav="profile" title="Profile">H</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ── Hero ────────────────────────────────────── -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-eyebrow">⚡ 28-minute avg delivery</div>
+                <h1>Great food, <span>delivered fast</span> to you</h1>
+                <p>Discover top-rated restaurants near you, explore thousands of dishes, and get your order delivered
+                    hot.</p>
+
+                <div class="hero-search">
+                    <div class="search-bar">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" id="heroSearch" placeholder="Search for restaurants or dishes…" />
+                        <button class="btn btn-primary btn-sm" onclick="handleSearch()">Search</button>
+                    </div>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <div class="val">500+</div>
+                        <div class="lbl">Restaurants</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="val">28 min</div>
+                        <div class="lbl">Avg Delivery</div>
+                    </div>
+                    <div class="hero-stat">
+                        <div class="val">4.8★</div>
+                        <div class="lbl">Avg Rating</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-badge-float">
+                <div class="hb-icon">🎉</div>
+                <div>
+                    <div class="hb-val">50% OFF</div>
+                    <div class="hb-lbl">First order</div>
+                </div>
+            </div>
+            <img src="images/hero.png" alt="Delicious food" class="hero-img" />
+        </div>
+    </section>
+
+    <!-- ── Categories ──────────────────────────────── -->
+    <section class="section" style="padding-bottom: 0;">
+        <div class="container">
+            <div class="section-header">
+                <h2>What are you craving?</h2>
+            </div>
+            <div class="categories-scroll" id="categoryScroll">
+                <div class="category-chip active" onclick="filterCategory(this, '')"> <span
+                        class="cat-emoji">🍽️</span><span class="cat-label">All</span></div>
+                <div class="category-chip" onclick="filterCategory(this, 'Indian')"> <span
+                        class="cat-emoji">🍛</span><span class="cat-label">Indian</span></div>
+                <div class="category-chip" onclick="filterCategory(this, 'Burger')"> <span
+                        class="cat-emoji">🍔</span><span class="cat-label">Burgers</span></div>
+                <div class="category-chip" onclick="filterCategory(this, 'Pizza')"> <span
+                        class="cat-emoji">🍕</span><span class="cat-label">Pizza</span></div>
+                <div class="category-chip" onclick="filterCategory(this, 'Sushi')"> <span
+                        class="cat-emoji">🍣</span><span class="cat-label">Sushi</span></div>
+                <div class="category-chip" onclick="filterCategory(this, 'Chinese')"> <span
+                        class="cat-emoji">🥡</span><span class="cat-label">Chinese</span></div>
+                <div class="category-chip" onclick="filterCategory(this, 'Desserts')"> <span
+                        class="cat-emoji">🍰</span><span class="cat-label">Desserts</span></div>
+                <div class="category-chip" onclick="filterCategory(this, 'Biryani')"> <span
+                        class="cat-emoji">🍚</span><span class="cat-label">Biryani</span></div>
+                <div class="category-chip" onclick="filterCategory(this, 'Ramen')"> <span
+                        class="cat-emoji">🍜</span><span class="cat-label">Ramen</span></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Promo Banners ────────────────────────────── -->
+    <section class="section" style="padding-top:var(--sp-8); padding-bottom: 0;">
+        <div class="container">
+            <div class="promo-grid">
+                <div class="promo-card promo-card-1">
+                    <div>
+                        <h3>Free Delivery</h3>
+                        <p>On orders above ₹299</p>
+                    </div>
+                    <div class="promo-emoji">🚴</div>
+                </div>
+                <div class="promo-card promo-card-2">
+                    <div>
+                        <h3>50% OFF</h3>
+                        <p>Use code MYFOOD50</p>
+                    </div>
+                    <div class="promo-emoji">🔥</div>
+                </div>
+                <div class="promo-card promo-card-3">
+                    <div>
+                        <h3>New Restaurants</h3>
+                        <p>Try something new today</p>
+                    </div>
+                    <div class="promo-emoji">✨</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Restaurants ──────────────────────────────── -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Restaurants near you</h2>
+                <a href="#" id="sortToggle" onclick="toggleSort(event)">Sort: Relevance ↕</a>
+            </div>
+            <div class="restaurants-grid" id="restaurantsGrid">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ── Bottom Nav ───────────────────────────────── -->
+    <nav class="bottom-nav">
+        <a href="index.html" class="active"><span>🏠</span>Home</a>
+        <a href="#" onclick="navigate('cart.html')"><span>🛒</span>Cart</a>
+        <a href="#" onclick="navigate('tracking.html')"><span>📦</span>Orders</a>
+        <a href="#" onclick="navigate('profile.html')"><span>👤</span>Profile</a>
+    </nav>
+
+    <script src="app.js"></script>
+    <script>
+        // ── Render Restaurants ──────────────────────────
+        let currentFilter = '';
+        let sortMode = 'relevance';
+
+        function renderRestaurants(list) {
+            const grid = document.getElementById('restaurantsGrid');
+            if (!list.length) {
+                grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><h3>No restaurants found</h3><p>Try a different search or category</p></div>`;
+                return;
+            }
+            grid.innerHTML = list.map(r => `
+      <div class="card restaurant-card anim-up" onclick="navigate('restaurant.html?id=${r.id}')" style="cursor:pointer">
+        <div class="r-image-wrap">
+          <img src="${r.img}" alt="${r.name}" class="card-img" onerror="this.src='images/r1.jpg'" />
+          <div class="r-badges">
+            ${r.tags.map(t => `<span class="badge badge-brand">${t}</span>`).join('')}
+          </div>
+          ${!r.open ? '<div class="closed-overlay">CLOSED</div>' : ''}
+        </div>
+        <div class="card-body">
+          <div class="r-name">${r.name}</div>
+          <div class="r-cuisine">${r.cuisine}</div>
+          <div class="r-meta">
+            <span class="rating">⭐ ${r.rating} <span class="count">(${r.reviews.toLocaleString()})</span></span>
+            <span>🕒 ${r.time}</span>
+            <span>📍 ${r.distance}</span>
+            <span>${r.deliveryFee === 0 ? '<span class="badge badge-success">Free Delivery</span>' : '🛵 ₹' + r.deliveryFee}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+        }
+
+        function filterCategory(el, category) {
+            document.querySelectorAll('.category-chip').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            currentFilter = category;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            let list = [...RESTAURANTS];
+            if (currentFilter) list = list.filter(r => r.cuisine.toLowerCase().includes(currentFilter.toLowerCase()) || r.name.toLowerCase().includes(currentFilter.toLowerCase()));
+            const q = document.getElementById('heroSearch').value.trim().toLowerCase();
+            if (q) list = list.filter(r => r.name.toLowerCase().includes(q) || r.cuisine.toLowerCase().includes(q));
+            if (sortMode === 'rating') list.sort((a, b) => b.rating - a.rating);
+            else if (sortMode === 'time') list.sort((a, b) => parseInt(a.time) - parseInt(b.time));
+            renderRestaurants(list);
+        }
+
+        function handleSearch() { applyFilters(); }
+
+        document.getElementById('heroSearch').addEventListener('keyup', e => { if (e.key === 'Enter') applyFilters(); applyFilters(); });
+
+        function toggleSort(e) {
+            e.preventDefault();
+            const modes = ['relevance', 'rating', 'time'];
+            const labels = ['Relevance ↕', 'Rating ⭐', 'Time 🕒'];
+            sortMode = modes[(modes.indexOf(sortMode) + 1) % modes.length];
+            e.target.textContent = 'Sort: ' + labels[modes.indexOf(sortMode)];
+            applyFilters();
+        }
+
+        // Init
+        renderRestaurants(RESTAURANTS);
+    </script>
+</body>
+
+</html>

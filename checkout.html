@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyFood – Checkout</title>
+    <meta name="description" content="Enter your delivery details and place your food order." />
+    <link rel="stylesheet" href="index.css" />
+    <style>
+        main {
+            padding: var(--sp-8) 0 var(--sp-16);
+        }
+
+        .checkout-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: var(--sp-8);
+            align-items: start;
+        }
+
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: var(--sp-6);
+            margin-bottom: var(--sp-5);
+        }
+
+        .form-card h3 {
+            margin-bottom: var(--sp-5);
+            display: flex;
+            align-items: center;
+            gap: var(--sp-3);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--sp-4);
+        }
+
+        /* Time Slots */
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--sp-3);
+            margin-top: var(--sp-3);
+        }
+
+        .time-slot {
+            padding: 0.55rem 1rem;
+            border-radius: var(--r-md);
+            background: var(--bg-card-2);
+            border: 1.5px solid var(--border);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--t-fast);
+            color: var(--text-secondary);
+        }
+
+        .time-slot:hover {
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .time-slot.active {
+            border-color: var(--brand-primary);
+            background: rgba(255, 92, 26, 0.12);
+            color: var(--brand-primary);
+        }
+
+        /* Payment Options */
+        .payment-options {
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-3);
+            margin-top: var(--sp-3);
+        }
+
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-4);
+            padding: var(--sp-4);
+            border-radius: var(--r-md);
+            background: var(--bg-card-2);
+            border: 1.5px solid var(--border);
+            cursor: pointer;
+            transition: all var(--t-fast);
+        }
+
+        .payment-option:hover {
+            border-color: var(--brand-primary);
+        }
+
+        .payment-option.active {
+            border-color: var(--brand-primary);
+            background: rgba(255, 92, 26, 0.08);
+        }
+
+        .payment-option input[type="radio"] {
+            display: none;
+        }
+
+        .radio-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: var(--r-full);
+            border: 2px solid var(--border);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color var(--t-fast);
+        }
+
+        .payment-option.active .radio-circle {
+            border-color: var(--brand-primary);
+        }
+
+        .radio-circle::after {
+            content: '';
+            width: 10px;
+            height: 10px;
+            border-radius: var(--r-full);
+            background: var(--brand-primary);
+            transform: scale(0);
+            transition: transform var(--t-fast);
+        }
+
+        .payment-option.active .radio-circle::after {
+            transform: scale(1);
+        }
+
+        .payment-icon {
+            font-size: 1.4rem;
+        }
+
+        .payment-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .payment-desc {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Order Summary Panel */
+        .summary-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: var(--sp-5) var(--sp-6);
+            position: sticky;
+            top: calc(var(--header-h) + 16px);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--sp-3) 0;
+            font-size: 0.9rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .summary-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .summary-row .label {
+            color: var(--text-secondary);
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-top: var(--sp-4);
+            padding-top: var(--sp-4);
+            border-top: 2px solid var(--border);
+        }
+
+        .summary-items {
+            max-height: 220px;
+            overflow-y: auto;
+            margin-bottom: var(--sp-4);
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--sp-2) 0;
+            font-size: 0.85rem;
+        }
+
+        .summary-item .si-name {
+            color: var(--text-secondary);
+        }
+
+        .summary-item .si-price {
+            font-weight: 600;
+        }
+
+        @media (max-width: 900px) {
+            .checkout-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-panel {
+                position: static;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo" onclick="navigate('index.html')" style="cursor:pointer">
+                <div class="logo-icon">🍔</div>
+                <span>MyFood</span>
+            </div>
+
+            <!-- Progress Steps -->
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem">
+                <span style="color:var(--text-muted)" onclick="navigate('cart.html')" class="btn btn-sm btn-ghost">←
+                    Cart</span>
+                <span
+                    style="background:var(--brand-gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700">Checkout</span>
+                <span style="color:var(--text-muted)">› Tracking</span>
+            </div>
+
+            <div class="header-actions">
+                <button class="icon-btn" data-nav="cart">🛒<span class="cart-badge" id="cartBadge"
+                        style="display:none">0</span></button>
+                <div class="avatar-btn" data-nav="profile">H</div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div style="padding: var(--sp-6) 0 var(--sp-4)">
+            <h2>Checkout 📋</h2>
+        </div>
+
+        <div class="checkout-layout">
+            <!-- Left Forms -->
+            <div>
+                <!-- Delivery Address -->
+                <div class="form-card">
+                    <h3>📍 Delivery Address</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Full Name</label>
+                            <input class="form-input" id="fullName" placeholder="John Doe" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number</label>
+                            <input class="form-input" id="phone" placeholder="+91 98765 43210" type="tel" />
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Street Address</label>
+                        <input class="form-input" id="address" placeholder="House No, Street, Area" type="text" />
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">City</label>
+                            <input class="form-input" id="city" value="Bengaluru" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">PIN Code</label>
+                            <input class="form-input" id="pincode" placeholder="560001" type="text" maxlength="6" />
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin:0">
+                        <label class="form-label">Delivery Instructions (optional)</label>
+                        <input class="form-input" id="instructions" placeholder="Leave at door, Ring bell, etc."
+                            type="text" />
+                    </div>
+                </div>
+
+                <!-- Delivery Time -->
+                <div class="form-card">
+                    <h3>🕒 Delivery Time</h3>
+                    <div class="time-slots">
+                        <div class="time-slot active" onclick="selectSlot(this)">ASAP (~28 min)</div>
+                        <div class="time-slot" onclick="selectSlot(this)">12:00 – 12:30 PM</div>
+                        <div class="time-slot" onclick="selectSlot(this)">12:30 – 1:00 PM</div>
+                        <div class="time-slot" onclick="selectSlot(this)">1:00 – 1:30 PM</div>
+                        <div class="time-slot" onclick="selectSlot(this)">7:00 – 7:30 PM</div>
+                        <div class="time-slot" onclick="selectSlot(this)">7:30 – 8:00 PM</div>
+                    </div>
+                </div>
+
+                <!-- Payment -->
+                <div class="form-card">
+                    <h3>💳 Payment Method</h3>
+                    <div class="payment-options">
+                        <label class="payment-option active" onclick="selectPayment(this)">
+                            <input type="radio" name="payment" value="card" />
+                            <div class="radio-circle"></div>
+                            <span class="payment-icon">💳</span>
+                            <div>
+                                <div class="payment-label">Credit / Debit Card</div>
+                                <div class="payment-desc">Visa, Mastercard, RuPay</div>
+                            </div>
+                        </label>
+                        <label class="payment-option" onclick="selectPayment(this)">
+                            <input type="radio" name="payment" value="upi" />
+                            <div class="radio-circle"></div>
+                            <span class="payment-icon">📲</span>
+                            <div>
+                                <div class="payment-label">UPI Payment</div>
+                                <div class="payment-desc">GPay, PhonePe, Paytm</div>
+                            </div>
+                        </label>
+                        <label class="payment-option" onclick="selectPayment(this)">
+                            <input type="radio" name="payment" value="cod" />
+                            <div class="radio-circle"></div>
+                            <span class="payment-icon">💵</span>
+                            <div>
+                                <div class="payment-label">Cash on Delivery</div>
+                                <div class="payment-desc">Pay when your order arrives</div>
+                            </div>
+                        </label>
+                        <label class="payment-option" onclick="selectPayment(this)">
+                            <input type="radio" name="payment" value="wallet" />
+                            <div class="radio-circle"></div>
+                            <span class="payment-icon">👛</span>
+                            <div>
+                                <div class="payment-label">MyFood Wallet</div>
+                                <div class="payment-desc">Balance: <strong>₹0</strong></div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Summary -->
+            <div class="summary-panel">
+                <h4 style="margin-bottom:var(--sp-4)">Order Summary</h4>
+                <div class="summary-items" id="summaryItems"></div>
+                <div class="summary-row"><span class="label">Subtotal</span><span id="coSubtotal">—</span></div>
+                <div class="summary-row"><span class="label">Delivery Fee</span><span id="coDelivery">—</span></div>
+                <div class="summary-row"><span class="label">Taxes (5%)</span><span id="coTax">—</span></div>
+                <div class="summary-row" id="coDiscountRow" style="display:none"><span class="label"
+                        style="color:var(--success)">Discount</span><span style="color:var(--success)"
+                        id="coDiscount">—</span></div>
+                <div class="summary-total"><span>Total</span><span id="coTotal">—</span></div>
+
+                <div style="margin-top:var(--sp-5)">
+                    <button class="btn btn-primary btn-full btn-lg" onclick="placeOrder()">
+                        🛵 Place Order
+                    </button>
+                    <p style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:var(--sp-3)">
+                        By placing your order, you agree to our terms of service and privacy policy.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="index.html"><span>🏠</span>Home</a>
+        <a href="cart.html"><span>🛒</span>Cart</a>
+        <a href="tracking.html"><span>📦</span>Orders</a>
+        <a href="profile.html"><span>👤</span>Profile</a>
+    </nav>
+
+    <script src="app.js"></script>
+    <script>
+        function selectSlot(el) {
+            document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('active'));
+            el.classList.add('active');
+        }
+        function selectPayment(el) {
+            document.querySelectorAll('.payment-option').forEach(p => p.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function loadSummary() {
+            const cart = Cart.get();
+            const user = User.get();
+
+            // Pre-fill user data
+            if (user) {
+                document.getElementById('fullName').value = user.name || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('address').value = user.address || '';
+            }
+
+            if (!cart.length) { navigate('cart.html'); return; }
+
+            document.getElementById('summaryItems').innerHTML = cart.map(c =>
+                `<div class="summary-item"><span class="si-name">${c.qty}× ${c.name}</span><span class="si-price">${formatPrice(c.price * c.qty)}</span></div>`
+            ).join('');
+
+            try {
+                const s = JSON.parse(localStorage.getItem('myfood_order_summary') || '{}');
+                document.getElementById('coSubtotal').textContent = formatPrice(s.subtotal || Cart.getTotal());
+                document.getElementById('coDelivery').textContent = s.deliveryFee === 0 ? 'FREE 🎉' : formatPrice(s.deliveryFee || 30);
+                document.getElementById('coTax').textContent = formatPrice(s.tax || 0);
+                document.getElementById('coTotal').textContent = formatPrice(s.total || Cart.getTotal());
+                if (s.promoDiscount > 0) {
+                    document.getElementById('coDiscountRow').style.display = 'flex';
+                    document.getElementById('coDiscount').textContent = '-' + formatPrice(s.promoDiscount);
+                }
+            } catch (e) {
+                document.getElementById('coTotal').textContent = formatPrice(Cart.getTotal());
+            }
+        }
+
+        function placeOrder() {
+            // Validate
+            const name = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+            const pincode = document.getElementById('pincode').value.trim();
+
+            if (!name || !phone || !address || !pincode) {
+                Toast.show('Please fill in all required fields ⚠️', 'error');
+                return;
+            }
+            if (!/^\d{6}$/.test(pincode)) {
+                Toast.show('Please enter a valid 6-digit PIN code', 'error');
+                return;
+            }
+
+            const cart = Cart.get();
+            const summary = JSON.parse(localStorage.getItem('myfood_order_summary') || '{}');
+            const payment = document.querySelector('.payment-option.active input')?.value || 'card';
+            const slot = document.querySelector('.time-slot.active')?.textContent || 'ASAP';
+
+            const order = {
+                items: cart,
+                deliveryAddress: { name, phone, address, city: document.getElementById('city').value, pincode },
+                paymentMethod: payment,
+                deliverySlot: slot,
+                total: summary.total || Cart.getTotal(),
+                status: 'placed',
+                restaurantName: cart[0]?.restaurantName || 'Restaurant'
+            };
+
+            const orderId = Orders.add(order);
+            Cart.clear();
+            localStorage.setItem('myfood_current_order', orderId);
+            Toast.show('Order placed successfully! 🎉', 'success');
+            setTimeout(() => navigate('tracking.html'), 1000);
+        }
+
+        loadSummary();
+    </script>
+</body>
+
+</html>

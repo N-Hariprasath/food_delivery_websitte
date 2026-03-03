@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MyFood – Restaurant Menu</title>
+    <meta name="description" content="Browse the full menu of this restaurant and add items to your cart." />
+    <link rel="stylesheet" href="index.css" />
+    <style>
+        .r-hero {
+            height: 260px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .r-hero img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.55);
+        }
+
+        .r-hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(13, 13, 13, 1) 0%, rgba(13, 13, 13, 0.3) 60%, transparent 100%);
+            display: flex;
+            align-items: flex-end;
+            padding: var(--sp-6) var(--sp-8);
+        }
+
+        .r-hero-info .r-name {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .r-hero-info .r-cuisine {
+            color: var(--text-secondary);
+            margin: 4px 0;
+        }
+
+        .r-hero-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-5);
+            margin-top: var(--sp-3);
+            flex-wrap: wrap;
+        }
+
+        .r-hero-meta span {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Category Tabs */
+        .menu-tabs {
+            display: flex;
+            gap: var(--sp-2);
+            overflow-x: auto;
+            padding: var(--sp-4) 0;
+            border-bottom: 1px solid var(--border);
+            scrollbar-width: none;
+            position: sticky;
+            top: var(--header-h);
+            background: var(--bg-base);
+            z-index: 10;
+        }
+
+        .menu-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .tab-btn {
+            padding: 0.55rem 1.1rem;
+            border-radius: var(--r-full);
+            background: var(--bg-card);
+            border: 1.5px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all var(--t-fast);
+        }
+
+        .tab-btn:hover {
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 92, 26, 0.12);
+            border-color: var(--brand-primary);
+            color: var(--brand-primary);
+        }
+
+        /* Menu Layout */
+        .menu-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: var(--sp-8);
+            align-items: start;
+            padding-top: var(--sp-6);
+        }
+
+        /* Category Section */
+        .menu-category {
+            margin-bottom: var(--sp-10);
+        }
+
+        .menu-category h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: var(--sp-4);
+            padding-bottom: var(--sp-3);
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Menu Item */
+        .menu-item {
+            display: flex;
+            gap: var(--sp-4);
+            padding: var(--sp-4) 0;
+            border-bottom: 1px solid var(--border);
+            animation: fadeIn 0.4s ease both;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item-img {
+            width: 110px;
+            height: 110px;
+            border-radius: var(--r-md);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .menu-item-info {
+            flex: 1;
+        }
+
+        .menu-item-name {
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 4px;
+        }
+
+        .menu-item-desc {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: var(--sp-3);
+        }
+
+        .menu-item-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .menu-item-price {
+            font-weight: 800;
+            font-size: 1rem;
+        }
+
+        .veg-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: var(--r-full);
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .veg-dot.veg {
+            background: var(--success);
+            box-shadow: 0 0 0 2px rgba(44, 182, 125, 0.2);
+        }
+
+        .veg-dot.nonveg {
+            background: var(--error);
+            box-shadow: 0 0 0 2px rgba(255, 92, 92, 0.2);
+        }
+
+        .popular-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 0.7rem;
+            color: var(--brand-secondary);
+            font-weight: 600;
+            margin-left: 6px;
+        }
+
+        /* Order Summary Sidebar */
+        .order-sidebar {
+            position: sticky;
+            top: calc(var(--header-h) + 56px);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            padding: var(--sp-5);
+        }
+
+        .order-sidebar h4 {
+            margin-bottom: var(--sp-4);
+        }
+
+        .sidebar-empty {
+            text-align: center;
+            padding: var(--sp-8) 0;
+            color: var(--text-muted);
+            font-size: 0.88rem;
+        }
+
+        .sidebar-empty .e-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--sp-3);
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-3);
+            padding: var(--sp-3) 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-item:last-of-type {
+            border-bottom: none;
+        }
+
+        .sidebar-item-name {
+            flex: 1;
+            font-size: 0.88rem;
+            font-weight: 500;
+        }
+
+        .sidebar-item-price {
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .sidebar-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 700;
+            margin-top: var(--sp-4);
+            padding-top: var(--sp-4);
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 900px) {
+            .menu-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .order-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .r-hero {
+                height: 200px;
+            }
+
+            .r-hero-overlay {
+                padding: var(--sp-4);
+            }
+
+            .r-hero-info .r-name {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="container">
+            <div class="logo" style="cursor:pointer" onclick="navigate('index.html')">
+                <div class="logo-icon">🍔</div>
+                <span>MyFood</span>
+            </div>
+            <div style="font-size:0.85rem;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+                <span onclick="navigate('index.html')" style="cursor:pointer">Home</span>
+                <span>›</span>
+                <span id="breadcrumbName" style="color:var(--text-primary)">Restaurant</span>
+            </div>
+            <div class="header-actions">
+                <button class="icon-btn" data-nav="cart">🛒<span class="cart-badge" id="cartBadge"
+                        style="display:none">0</span></button>
+                <div class="avatar-btn" data-nav="profile">H</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Restaurant Hero -->
+    <div class="r-hero" id="rHero">
+        <img id="rCoverImg" src="" alt="Restaurant" />
+        <div class="r-hero-overlay">
+            <div class="r-hero-info">
+                <div class="r-name" id="rName"></div>
+                <div class="r-cuisine" id="rCuisine"></div>
+                <div class="r-hero-meta" id="rMeta"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="container">
+        <div class="menu-tabs" id="menuTabs"></div>
+    </div>
+
+    <!-- Menu + Sidebar -->
+    <div class="container">
+        <div class="menu-layout">
+            <div id="menuItems"></div>
+
+            <!-- Sidebar -->
+            <div class="order-sidebar">
+                <h4>🛒 Your Order</h4>
+                <div id="sidebarContent">
+                    <div class="sidebar-empty">
+                        <div class="e-icon">🍽️</div>
+                        <p>Add items to start your order</p>
+                    </div>
+                </div>
+                <div id="sidebarFooter" style="display:none">
+                    <div class="sidebar-total"><span>Total</span><span id="sidebarTotal"></span></div>
+                    <button class="btn btn-primary btn-full" style="margin-top:var(--sp-4)"
+                        onclick="navigate('cart.html')">View Cart →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Cart Bar -->
+    <div class="floating-cart" id="floatingCart" style="display:none" onclick="navigate('cart.html')">
+        <div class="fc-info">
+            <span class="fc-count" id="fcCount">0 items</span>
+            <span class="fc-label">View Cart</span>
+        </div>
+        <span class="fc-total" id="fcTotal">₹0</span>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="index.html"><span>🏠</span>Home</a>
+        <a href="cart.html" class="active"><span>🛒</span>Cart</a>
+        <a href="tracking.html"><span>📦</span>Orders</a>
+        <a href="profile.html"><span>👤</span>Profile</a>
+    </nav>
+
+    <script src="app.js"></script>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const restaurantId = parseInt(params.get('id')) || 1;
+        const restaurant = getRestaurant(restaurantId);
+        const menu = getMenu(restaurantId);
+
+        function init() {
+            // Breadcrumb & header
+            document.getElementById('breadcrumbName').textContent = menu.name;
+            document.getElementById('rName').textContent = menu.name;
+            document.getElementById('rCuisine').textContent = restaurant.cuisine;
+            document.getElementById('rCoverImg').src = menu.coverImg;
+            document.getElementById('rCoverImg').onerror = function () { this.src = 'images/r1.jpg'; };
+            document.getElementById('rMeta').innerHTML = `
+      <span class="rating">⭐ ${restaurant.rating} <span class="count">(${restaurant.reviews.toLocaleString()})</span></span>
+      <span>🕒 ${restaurant.time}</span>
+      <span>📍 ${restaurant.distance}</span>
+      <span>Min order: ₹${restaurant.minOrder}</span>
+      <span>${restaurant.deliveryFee === 0 ? '<span class="badge badge-success">Free Delivery</span>' : '🛵 ₹' + restaurant.deliveryFee + ' delivery'}</span>
+    `;
+
+            // Tabs
+            const tabs = document.getElementById('menuTabs');
+            tabs.innerHTML = menu.categories.map((cat, i) =>
+                `<button class="tab-btn ${i === 0 ? 'active' : ''}" onclick="scrollToCategory(${i}, this)">${cat.name}</button>`
+            ).join('');
+
+            // Items
+            const menuEl = document.getElementById('menuItems');
+            menuEl.innerHTML = menu.categories.map((cat, i) => `
+      <div class="menu-category" id="cat-${i}">
+        <h3>${cat.name}</h3>
+        ${cat.items.map(item => `
+          <div class="menu-item" id="mi-${item.id}">
+            <img src="${item.img}" alt="${item.name}" class="menu-item-img" onerror="this.src='images/f1.jpg'" />
+            <div class="menu-item-info">
+              <div class="menu-item-name">
+                <span class="veg-dot ${item.veg ? 'veg' : 'nonveg'}"></span>
+                ${item.name}
+                ${item.popular ? '<span class="popular-tag">🔥 Popular</span>' : ''}
+              </div>
+              <div class="menu-item-desc">${item.desc}</div>
+              <div class="menu-item-footer">
+                <div class="menu-item-price">${formatPrice(item.price)}</div>
+                <div id="ctrl-${item.id}">${getItemControl(item)}</div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `).join('');
+
+            updateSidebar();
+            updateFloatingCart();
+        }
+
+        function getItemControl(item) {
+            const cart = Cart.get();
+            const inCart = cart.find(c => c.id === item.id);
+            if (inCart) {
+                return `<div class="qty-ctrl">
+        <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+        <span class="qty-count" id="qty-${item.id}">${inCart.qty}</span>
+        <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+      </div>`;
+            }
+            return `<button class="add-btn" onclick="addItem(${item.id})">+ Add</button>`;
+        }
+
+        function addItem(itemId) {
+            const allItems = menu.categories.flatMap(c => c.items);
+            const item = allItems.find(i => i.id === itemId);
+            if (!item) return;
+            const added = Cart.add(item, restaurantId, menu.name);
+            if (added) {
+                document.getElementById(`ctrl-${itemId}`).innerHTML = getItemControl(item);
+                updateSidebar();
+                updateFloatingCart();
+            }
+        }
+
+        function changeQty(itemId, delta) {
+            const cart = Cart.get();
+            const inCart = cart.find(c => c.id === itemId);
+            if (!inCart) return;
+            const newQty = inCart.qty + delta;
+            Cart.updateQty(itemId, newQty);
+            const allItems = menu.categories.flatMap(c => c.items);
+            const item = allItems.find(i => i.id === itemId);
+            document.getElementById(`ctrl-${itemId}`).innerHTML = getItemControl(item);
+            updateSidebar();
+            updateFloatingCart();
+        }
+
+        function updateSidebar() {
+            const cart = Cart.get().filter(c => c.restaurantId === restaurantId);
+            const content = document.getElementById('sidebarContent');
+            const footer = document.getElementById('sidebarFooter');
+            if (!cart.length) {
+                content.innerHTML = `<div class="sidebar-empty"><div class="e-icon">🍽️</div><p>Add items to start your order</p></div>`;
+                footer.style.display = 'none';
+                return;
+            }
+            content.innerHTML = cart.map(c => `
+      <div class="sidebar-item">
+        <div class="qty-ctrl" style="transform:scale(0.85);margin:-4px">
+          <button class="qty-btn" onclick="changeQty(${c.id},-1)">−</button>
+          <span class="qty-count">${c.qty}</span>
+          <button class="qty-btn" onclick="changeQty(${c.id},1)">+</button>
+        </div>
+        <span class="sidebar-item-name">${c.name}</span>
+        <span class="sidebar-item-price">${formatPrice(c.price * c.qty)}</span>
+      </div>
+    `).join('');
+            document.getElementById('sidebarTotal').textContent = formatPrice(Cart.getTotal());
+            footer.style.display = 'block';
+        }
+
+        function updateFloatingCart() {
+            const count = Cart.getCount();
+            const fc = document.getElementById('floatingCart');
+            if (count > 0) {
+                fc.style.display = 'flex';
+                document.getElementById('fcCount').textContent = `${count} item${count > 1 ? 's' : ''}`;
+                document.getElementById('fcTotal').textContent = formatPrice(Cart.getTotal());
+            } else {
+                fc.style.display = 'none';
+            }
+        }
+
+        function scrollToCategory(idx, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const el = document.getElementById(`cat-${idx}`);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        init();
+    </script>
+</body>
+
+</html>
